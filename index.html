@@ -5,41 +5,33 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roz Tr</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-body {
+body{
   font-family: Arial;
-  background: linear-gradient(to bottom,#fff,#ddd);
+  background:#eee;
   display:flex;
   justify-content:center;
   align-items:center;
   height:100vh;
-  margin:0;
 }
-
-.box {
-  background:white;
+.box{
+  background:#fff;
   padding:20px;
   width:90%;
   max-width:350px;
-  border-radius:15px;
+  border-radius:10px;
 }
-
-input,button {
+input,button{
   width:100%;
   padding:10px;
   margin:5px 0;
 }
-
-button {
-  background:#666;
-  color:white;
+button{
+  background:#444;
+  color:#fff;
   border:none;
-}
-
-#msg {
-  text-align:center;
 }
 </style>
 </head>
@@ -47,10 +39,8 @@ button {
 <body>
 
 <div class="box">
-
 <h2>Roz Tr</h2>
 
-<h3>إنشاء حساب</h3>
 <input id="name" placeholder="الاسم">
 <input id="email" placeholder="البريد">
 <input id="pass" type="password" placeholder="كلمة المرور">
@@ -59,20 +49,15 @@ button {
 
 <hr>
 
-<h3>تسجيل دخول</h3>
 <input id="lemail" placeholder="البريد">
 <input id="lpass" type="password" placeholder="كلمة المرور">
 
 <button onclick="login()">دخول</button>
 
 <p id="msg"></p>
-
 </div>
 
 <script>
-
-// 🔥 اختبار إن JS شغال
-alert("الموقع جاهز");
 
 const supabase = window.supabase.createClient(
 "https://ipslfmrolkquacrbvbxl.supabase.co",
@@ -83,70 +68,45 @@ function msg(t){
   document.getElementById("msg").innerText = t;
 }
 
-// 🔐 تسجيل
 async function register(){
-  alert("تم الضغط"); // اختبار الزر
+  let name = document.getElementById("name").value;
+  let email = document.getElementById("email").value;
+  let pass = document.getElementById("pass").value;
 
-  try{
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
-    let pass = document.getElementById("pass").value;
+  let {error} = await supabase.from("users").insert([{
+    name:name,
+    email:email,
+    password:pass,
+    points:0
+  }]);
 
-    if(!name || !email || !pass){
-      msg("❌ عبّي كل الحقول");
-      return;
-    }
-
-    let {error} = await supabase.from("users").insert([{
-      name:name,
-      email:email,
-      password:pass,
-      points:0
-    }]);
-
-    console.log(error);
-
-    if(error){
-      msg("❌ " + error.message);
-    }else{
-      msg("✅ تم إنشاء الحساب");
-    }
-
-  }catch(e){
-    alert("خطأ: " + e.message);
+  if(error){
+    msg("❌ " + error.message);
+  }else{
+    msg("✅ تم التسجيل");
   }
 }
 
-// 🔓 دخول
 async function login(){
-  alert("تم الضغط");
+  let email = document.getElementById("lemail").value;
+  let pass = document.getElementById("lpass").value;
 
-  try{
-    let email = document.getElementById("lemail").value;
-    let pass = document.getElementById("lpass").value;
+  let {data,error} = await supabase
+    .from("users")
+    .select("*")
+    .eq("email",email)
+    .eq("password",pass)
+    .single();
 
-    let {data,error} = await supabase
-      .from("users")
-      .select("*")
-      .eq("email",email)
-      .eq("password",pass)
-      .single();
+  if(error || !data){
+    msg("❌ خطأ");
+  }else{
+    localStorage.setItem("user", JSON.stringify(data));
+    msg("✅ دخول");
 
-    console.log(data,error);
-
-    if(error || !data){
-      msg("❌ بيانات غلط");
-    }else{
-      localStorage.setItem("user", JSON.stringify(data));
-      msg("✅ تم الدخول");
-
-      setTimeout(()=>{
-        location="dashboard.html";
-      },1000);
-    }
-
-  }catch(e){
-    alert("خطأ: " + e.message);
+    setTimeout(()=>{
+      window.location="dashboard.html";
+    },1000);
   }
 }
 
