@@ -1,46 +1,40 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roz Tr</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
-<style>
-body{text-align:center;font-family:Arial;}
-.card{background:white;margin:10px;padding:15px;border-radius:10px;}
-input{padding:10px;width:80%;}
-button{padding:10px;background:#666;color:white;border:none;}
-</style>
 </head>
 
 <body>
 
 <h2>💸 سحب</h2>
-
-<div class="card">
 <input id="amount" placeholder="المبلغ">
 <button onclick="w()">سحب</button>
-</div>
 
 <script>
-const supabase=window.supabase.createClient(
+const supabase = window.supabase.createClient(
 "https://ipslfmrolkquacrbvbxl.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24يIiwiaWF0IjoxNzc0NDYxMDEzLCJleHAiOjIwOTAwMzcwMTN9.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
 );
 
-let user=JSON.parse(localStorage.getItem("user"));
+let user = JSON.parse(localStorage.getItem("user"));
+if (!user) location="index.html";
 
 async function w(){
-let amount=parseFloat(document.getElementById("amount").value);
-let {data:u}=await supabase.from("users").select("*").eq("id",user.id).single();
+  let amount = parseFloat(document.getElementById("amount").value);
 
-if(amount>u.points){alert("رصيد");return;}
+  let {data:u} = await supabase.from("users").select("*").eq("id",user.id).single();
 
-await supabase.from("withdrawals").insert([{user_id:user.id,amount:amount}]);
+  if(amount > u.points){
+    alert("❌ رصيد غير كافي");
+    return;
+  }
 
-await supabase.from("users").update({points:u.points-amount}).eq("id",user.id);
+  await supabase.from("withdrawals").insert([{user_id:user.id,amount:amount}]);
 
-alert("تم");
+  await supabase.from("users").update({points:u.points-amount}).eq("id",user.id);
+
+  alert("تم");
 }
 </script>
 
