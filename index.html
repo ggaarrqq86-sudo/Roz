@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roz Tr</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- ✅ مكتبة شغالة 100% -->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
 body{
@@ -59,6 +60,9 @@ button{
 
 <script>
 
+// ✅ تأكيد أن الكود اشتغل
+console.log("JS شغال");
+
 const supabase = window.supabase.createClient(
 "https://ipslfmrolkquacrbvbxl.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
@@ -68,10 +72,16 @@ function msg(t){
   document.getElementById("msg").innerText = t;
 }
 
+// 🔐 تسجيل
 async function register(){
   let name = document.getElementById("name").value;
   let email = document.getElementById("email").value;
   let pass = document.getElementById("pass").value;
+
+  if(!name || !email || !pass){
+    msg("❌ عبّي كل الحقول");
+    return;
+  }
 
   let {error} = await supabase.from("users").insert([{
     name:name,
@@ -87,6 +97,7 @@ async function register(){
   }
 }
 
+// 🔓 دخول
 async function login(){
   let email = document.getElementById("lemail").value;
   let pass = document.getElementById("lpass").value;
@@ -99,10 +110,10 @@ async function login(){
     .single();
 
   if(error || !data){
-    msg("❌ خطأ");
+    msg("❌ معلومات غلط");
   }else{
     localStorage.setItem("user", JSON.stringify(data));
-    msg("✅ دخول");
+    msg("✅ تم الدخول");
 
     setTimeout(()=>{
       window.location="dashboard.html";
