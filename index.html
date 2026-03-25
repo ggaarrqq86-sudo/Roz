@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Roz Tr</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  text-align: center;
+  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
+}
+
+.container {
+  background: white;
+  padding: 25px;
+  width: 320px;
+  margin: 60px auto;
+  border-radius: 15px;
+  box-shadow: 0 0 20px #ccc;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: bold;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 90%;
+  padding: 12px;
+  margin: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 12px;
+  background: #888;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 95%;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #666;
+}
+
+.success { color: green; }
+.error { color: red; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="logo">Roz Tr</div>
+  <div class="subtitle">منصة المهام والربح</div>
+
+  <h3>🔐 إنشاء حساب</h3>
+  <input id="name" placeholder="الاسم">
+  <input id="email" placeholder="البريد الإلكتروني">
+  <input id="password" type="password" placeholder="كلمة المرور">
+  <button onclick="register()">إنشاء حساب</button>
+
+  <hr>
+
+  <h3>🔓 تسجيل دخول</h3>
+  <input id="loginEmail" placeholder="البريد الإلكتروني">
+  <input id="loginPassword" type="password" placeholder="كلمة المرور">
+  <button onclick="login()">دخول</button>
+
+  <p id="msg"></p>
+</div>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://ipslfmrolkquacrbvbxl.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24يIiwiaWF0IjoxNzc0NDYxMDEzLCJleHAiOjIwOTAwMzcwMTN9.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+);
+
+function generateAccountId() {
+  return "ACC-" + Math.floor(100000 + Math.random() * 900000);
+}
+
+async function register() {
+  let name = document.getElementById("name").value;
+  let email = document.getElementById("email").value;
+  let password = document.getElementById("password").value;
+
+  if (!name || !email || !password) {
+    showMsg("❌ املأ كل الحقول", true);
+    return;
+  }
+
+  let accountId = generateAccountId();
+
+  const { error } = await supabase.from("users").insert([{
+    name,
+    email,
+    password,
+    account_id: accountId
+  }]);
+
+  if (error) {
+    showMsg("❌ " + error.message, true);
+  } else {
+    showMsg("✅ تم إنشاء الحساب بنجاح");
+  }
+}
+
+async function login() {
+  let email = document.getElementById("loginEmail").value;
+  let password = document.getElementById("loginPassword").value;
+
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .eq("password", password)
+    .single();
+
+  if (error || !data) {
+    showMsg("❌ بيانات غير صحيحة", true);
+  } else {
+    localStorage.setItem("user", JSON.stringify(data));
+    showMsg("✅ مرحبًا " + data.name);
+    setTimeout(() => {
+      window.location.href = "dashboard.html";
+    }, 1000);
+  }
+}
+
+function showMsg(msg, isError=false) {
+  let el = document.getElementById("msg");
+  el.innerText = msg;
+  el.className = isError ? "error" : "success";
+}
+</script>
+
+</body>
+</html>
