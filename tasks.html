@@ -2,25 +2,13 @@
 <html lang="ar">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roz Tr</title>
+<title>Tasks</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-body {font-family:Arial;background:#f5f5f5;text-align:center;}
-.card {
-background:white;
-margin:10px;
-padding:15px;
-border-radius:10px;
-box-shadow:0 0 10px #ccc;
-}
-button {
-padding:10px;
-background:#666;
-color:white;
-border:none;
-border-radius:8px;
-}
+body{text-align:center;font-family:Arial;background:#f5f5f5;}
+.card{background:white;margin:10px;padding:15px;border-radius:10px;}
+button{padding:10px;background:#666;color:white;border:none;border-radius:8px;}
 </style>
 </head>
 
@@ -28,37 +16,39 @@ border-radius:8px;
 
 <h2>📋 المهام</h2>
 
-<div class="card">🕐 1
-<button onclick="doTask(1)">إكمال</button></div>
-
-<div class="card">🕓 4
-<button onclick="doTask(4)">إكمال</button></div>
-
-<div class="card">🕖 7
-<button onclick="doTask(7)">إكمال</button></div>
-
-<div class="card">🕘 VIP
-<button onclick="doTask(9)">إكمال</button></div>
+<div class="card">🕐 1 <button onclick="doTask(1)">إكمال</button></div>
+<div class="card">🕓 4 <button onclick="doTask(4)">إكمال</button></div>
+<div class="card">🕖 7 <button onclick="doTask(7)">إكمال</button></div>
+<div class="card">🕘 VIP <button onclick="doTask(9)">إكمال</button></div>
 
 <script>
 const supabase = window.supabase.createClient(
 "https://ipslfmrolkquacrbvbxl.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
 );
 
-let user=JSON.parse(localStorage.getItem("user"));
-if(!user) location="index.html";
+let user = JSON.parse(localStorage.getItem("user"));
+if (!user) location="index.html";
 
 async function doTask(t){
-let {data:u}=await supabase.from("users").select("*").eq("id",user.id).single();
+  try{
+    let {data:u} = await supabase.from("users").select("*").eq("id",user.id).single();
+    if(!u) return;
 
-if(t==9 && u.points<1000){alert("VIP");return;}
+    if(t==9 && u.points < 1000){
+      alert("❌ تحتاج 1000 نقطة");
+      return;
+    }
 
-let profit=(u.points/15)*1.2;
+    let profit = (u.points/15)*1.2;
 
-await supabase.from("users").update({points:u.points+profit}).eq("id",user.id);
+    await supabase.from("users").update({points:u.points+profit}).eq("id",user.id);
 
-alert("ربحت "+profit);
+    alert("🎉 ربحت " + profit.toFixed(2));
+  }catch(e){
+    console.log(e);
+    alert("❌ خطأ");
+  }
 }
 </script>
 
