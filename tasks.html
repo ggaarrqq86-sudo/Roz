@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Roz Tr - المهام</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
+  text-align: center;
+}
+
+.header {
+  padding: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #555;
+}
+
+.card {
+  background: white;
+  margin: 15px;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px #ccc;
+}
+
+button {
+  padding: 12px 20px;
+  background: #888;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #666;
+}
+
+.lock {
+  color: red;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">📋 المهام</div>
+
+<div class="card">
+  <h3>🕐 مهمة الساعة 1</h3>
+  <button onclick="doTask(1)">إكمال</button>
+</div>
+
+<div class="card">
+  <h3>🕓 مهمة الساعة 4</h3>
+  <button onclick="doTask(4)">إكمال</button>
+</div>
+
+<div class="card">
+  <h3>🕖 مهمة الساعة 7</h3>
+  <button onclick="doTask(7)">إكمال</button>
+</div>
+
+<div class="card">
+  <h3>🕘 مهمة VIP (1000 نقطة)</h3>
+  <button onclick="doTask(9)">إكمال</button>
+</div>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://ipslfmrolkquacrbvbxl.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+);
+
+let user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+  window.location.href = "index.html";
+}
+
+async function doTask(time) {
+
+  // جلب أحدث بيانات المستخدم
+  const { data: u } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (!u) return;
+
+  // VIP شرط
+  if (time == 9 && u.points < 1000) {
+    alert("❌ تحتاج 1000 نقطة");
+    return;
+  }
+
+  // حساب الربح
+  let profit = (u.points / 15) * 1.2;
+
+  if (profit <= 0) {
+    alert("❌ لازم يكون عندك رصيد");
+    return;
+  }
+
+  // منع التكرار
+  const today = new Date().toISOString().split("T")[0];
+
+  const { data: exists } = await supabase
+    .from("user_tasks")
+    .select("*")
+    .eq("user_id", user.id)
+    .eq("task_time", time)
+    .eq("task_date", today);
+
+  if (exists.length > 0) {
+    alert("❌ نفذت المهمة اليوم");
+    return;
+  }
+
+  // تحديث الرصيد
+  let newPoints = parseFloat(u.points) + profit;
+
+  await supabase
+    .from("users")
+    .update({ points: newPoints })
+    .eq("id", user.id);
+
+  // تسجيل المهمة
