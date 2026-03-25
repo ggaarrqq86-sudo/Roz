@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Roz Tr - Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
+}
+
+.header {
+  text-align: center;
+  padding: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #555;
+}
+
+.card {
+  background: white;
+  margin: 10px;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px #ccc;
+}
+
+button {
+  padding: 8px 12px;
+  margin: 5px;
+  background: #888;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">👑 لوحة الإدارة</div>
+
+<h3 style="text-align:center;">💰 طلبات الشحن</h3>
+<div id="deposits"></div>
+
+<h3 style="text-align:center;">💸 طلبات السحب</h3>
+<div id="withdrawals"></div>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://ipslfmrolkquacrbvbxl.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24يIiwiaWF0IjoxNzc0NDYxMDEzLCJleHAiOjIwOTAwMzcwMTN9.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+);
+
+let user = JSON.parse(localStorage.getItem("user"));
+
+// حماية الصفحة
+if (!user || user.role !== "admin") {
+  alert("❌ غير مصرح");
+  window.location.href = "index.html";
+}
+
+// تحميل طلبات الشحن
+async function loadDeposits() {
+  const { data } = await supabase
+    .from("deposits")
+    .select("*")
+    .eq("status", "pending");
+
+  let html = "";
+
+  for (let d of data) {
+    html += `
+      <div class="card">
+        💰 ${d.amount} نقطة
+        <br>
+        <button onclick="approveDeposit('${d.id}', '${d.user_id}', ${d.amount})">قبول</button>
+      </div>
+    `;
+  }
+
+  document.getElementById("deposits").innerHTML = html;
+}
+
+// تحميل طلبات السحب
+async function loadWithdrawals() {
+  const { data } = await supabase
+    .from("withdrawals")
+    .select("*")
+    .eq("status", "pending");
+
+  let html = "";
+
+  for (let w of data) {
+    html += `
+      <div class="card">
+        💸 ${w.amount} → ${w.final_amount}
+        <br>
+        <button onclick="approveWithdraw('${w.id}')">تم الدفع</button>
+      </div>
+    `;
+  }
+
+  document.getElementById("withdrawals").innerHTML = html;
+}
+
+// قبول الشحن
+async function approveDeposit(id, user_id, amount) {
+
+  // تحديث الحالة
+  await supabase.from("deposits")
+    .update({ status: "approved" })
+    .eq("id", id);
+
+  // إضافة الرصيد
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user_id)
+    .single();
+
+  let newPoints = parseFloat(data.points) + amount;
+
+  await supabase
+    .from("users")
+    .update({ points: newPoints })
+    .eq("id", user_id);
+
+  // إشعار
+  await supabase.from("notifications").insert([{
+    user_id: user_id,
+    message: "✅ تم إضافة " + amount + " نقطة"
+  }]);
+
+  alert("تم الشحن");
+  loadDeposits();
+}
+
+// قبول السحب
+async function approveWithdraw(id) {
+
+  await supabase.from("withdrawals")
+    .update({ status: "paid" })
+    .eq("id", id);
+
+  alert("تم السحب");
+  loadWithdrawals();
+}
+
+load
