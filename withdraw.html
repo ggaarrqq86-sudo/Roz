@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>Roz Tr - سحب</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+<style>
+body {
+  font-family: Arial;
+  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
+  text-align: center;
+}
+
+.header {
+  padding: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #555;
+}
+
+.card {
+  background: white;
+  margin: 15px;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 15px #ccc;
+}
+
+input {
+  width: 90%;
+  padding: 12px;
+  margin: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 12px;
+  background: #888;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 90%;
+}
+
+button:hover {
+  background: #666;
+}
+
+.info {
+  color: #777;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">💸 سحب الرصيد</div>
+
+<div class="card">
+
+  <h3>💰 رصيدك</h3>
+  <p id="balance">0</p>
+
+  <h3>💸 المبلغ</h3>
+  <input id="amount" type="number" placeholder="أدخل المبلغ">
+
+  <p class="info">⚠️ عمولة 10% - سحب مرة يوميًا</p>
+
+  <button onclick="withdraw()">طلب سحب</button>
+
+</div>
+
+<script>
+const supabase = window.supabase.createClient(
+  "https://ipslfmrolkquacrbvbxl.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24يIiwiaWF0IjoxNzc0NDYxMDEzLCJleHAiOjIwOTAwMzcwMTN9.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+);
+
+let user = JSON.parse(localStorage.getItem("user"));
+
+if (!user) {
+  window.location.href = "index.html";
+}
+
+// عرض الرصيد
+async function loadBalance() {
+  const { data } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (data) {
+    document.getElementById("balance").innerText = data.points;
+  }
+}
+
+loadBalance();
+
+// طلب سحب
+async function withdraw() {
+
+  let amount = parseFloat(document.getElementById("amount").value);
+
+  if (!amount || amount <= 0) {
+    alert("❌ أدخل مبلغ صحيح");
+    return;
+  }
+
+  // جلب بيانات المستخدم
+  const { data: u } = await supabase
+    .from("users")
+    .select("*")
+    .eq("id", user.id)
+    .single();
+
+  if (!u) return;
+
+  if (amount > u.points) {
+    alert("❌ الرصيد غير كافي");
+    return;
+  }
+
+  // حساب العمولة
+  let finalAmount = amount * 0.9;
+
+  // إضافة طلب السحب
+  const { error } = await supabase.from("withdrawals").insert([{
+    user_id: user.id,
+    amount: amount,
+    final_amount: finalAmount
+  }]);
+
+  if (error) {
+    alert("❌ لا يمكن السحب مرتين في نفس اليوم");
+    return;
+  }
+
+  // خصم الرصيد
+  let newBalance = u.points - amount;
+
+  await supabase
+    .from("users")
+    .update({ points: newBalance })
+    .eq("id", user.id);
+
+  // تسجيل العملية
+  await supabase.from("transactions").insert([{
+    user_id: user.id,
+    type: "withdrawal",
+    amount: amount
+  }]);
+
+  alert("⏳ تم إرسال طلب السحب");
+  loadBalance();
+}
+</script>
+
+</body>
+</html>
