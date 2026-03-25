@@ -1,88 +1,38 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>Roz Tr - الإشعارات</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roz Tr</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
-}
-
-.header {
-  text-align: center;
-  padding: 15px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #555;
-}
-
-.card {
-  background: white;
-  margin: 10px;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #ccc;
-}
-
-.new {
-  border-right: 5px solid green;
-}
-
-.old {
-  opacity: 0.6;
-}
+body{font-family:Arial;}
+.card{background:white;margin:10px;padding:10px;border-radius:8px;}
 </style>
 </head>
 
 <body>
 
-<div class="header">🔔 الإشعارات</div>
-
+<h2>🔔 الإشعارات</h2>
 <div id="list"></div>
 
 <script>
-const supabase = window.supabase.createClient(
-  "https://ipslfmrolkquacrbvbxl.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24يIiwiaWF0IjoxNzc0NDYxMDEzLCJleHAiOjIwOTAwMzcwMTN9.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+const supabase=window.supabase.createClient(
+"https://ipslfmrolkquacrbvbxl.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 );
 
-let user = JSON.parse(localStorage.getItem("user"));
+let user=JSON.parse(localStorage.getItem("user"));
 
-if (!user) {
-  window.location.href = "index.html";
+async function load(){
+let {data}=await supabase.from("notifications").select("*").eq("user_id",user.id);
+
+let html="";
+data.forEach(n=>{html+=`<div class="card">${n.message}</div>`});
+document.getElementById("list").innerHTML=html;
 }
 
-async function loadNotifications() {
-
-  const { data } = await supabase
-    .from("notifications")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
-
-  let html = "";
-
-  data.forEach(n => {
-    html += `
-      <div class="card ${n.status === 'new' ? 'new' : 'old'}">
-        ${n.message}
-      </div>
-    `;
-  });
-
-  document.getElementById("list").innerHTML = html;
-
-  // تحديث إلى مقروء
-  await supabase
-    .from("notifications")
-    .update({ status: "read" })
-    .eq("user_id", user.id);
-}
-
-loadNotifications();
+load();
 </script>
 
 </body>
