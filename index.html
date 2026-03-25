@@ -10,7 +10,7 @@
 <style>
 body {
   font-family: Arial;
-  background: linear-gradient(to bottom,#ffffff,#e0e0e0);
+  background: linear-gradient(to bottom,#fff,#ddd);
   display:flex;
   justify-content:center;
   align-items:center;
@@ -24,33 +24,22 @@ body {
   width:90%;
   max-width:350px;
   border-radius:15px;
-  box-shadow:0 0 10px #ccc;
 }
 
-h2 {
-  text-align:center;
-}
-
-input {
+input,button {
   width:100%;
   padding:10px;
   margin:5px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
 }
 
 button {
-  width:100%;
-  padding:10px;
   background:#666;
   color:white;
   border:none;
-  border-radius:8px;
 }
 
 #msg {
   text-align:center;
-  margin-top:10px;
 }
 </style>
 </head>
@@ -61,17 +50,19 @@ button {
 
 <h2>Roz Tr</h2>
 
-<h3>🔐 إنشاء حساب</h3>
+<h3>إنشاء حساب</h3>
 <input id="name" placeholder="الاسم">
-<input id="email" placeholder="البريد الإلكتروني">
+<input id="email" placeholder="البريد">
 <input id="pass" type="password" placeholder="كلمة المرور">
+
 <button onclick="register()">إنشاء حساب</button>
 
 <hr>
 
-<h3>🔓 تسجيل دخول</h3>
-<input id="lemail" placeholder="البريد الإلكتروني">
+<h3>تسجيل دخول</h3>
+<input id="lemail" placeholder="البريد">
 <input id="lpass" type="password" placeholder="كلمة المرور">
+
 <button onclick="login()">دخول</button>
 
 <p id="msg"></p>
@@ -79,6 +70,10 @@ button {
 </div>
 
 <script>
+
+// 🔥 اختبار إن JS شغال
+alert("الموقع جاهز");
+
 const supabase = window.supabase.createClient(
 "https://ipslfmrolkquacrbvbxl.supabase.co",
 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
@@ -88,61 +83,73 @@ function msg(t){
   document.getElementById("msg").innerText = t;
 }
 
-// ✅ إنشاء حساب
+// 🔐 تسجيل
 async function register(){
-  let name = document.getElementById("name").value.trim();
-  let email = document.getElementById("email").value.trim();
-  let pass = document.getElementById("pass").value.trim();
+  alert("تم الضغط"); // اختبار الزر
 
-  if(!name || !email || !pass){
-    msg("❌ عبّي كل الحقول");
-    return;
-  }
+  try{
+    let name = document.getElementById("name").value;
+    let email = document.getElementById("email").value;
+    let pass = document.getElementById("pass").value;
 
-  let { error } = await supabase.from("users").insert([{
-    name: name,
-    email: email,
-    password: pass,
-    points: 0
-  }]);
+    if(!name || !email || !pass){
+      msg("❌ عبّي كل الحقول");
+      return;
+    }
 
-  if(error){
+    let {error} = await supabase.from("users").insert([{
+      name:name,
+      email:email,
+      password:pass,
+      points:0
+    }]);
+
     console.log(error);
-    msg("❌ " + error.message);
-  }else{
-    msg("✅ تم إنشاء الحساب");
+
+    if(error){
+      msg("❌ " + error.message);
+    }else{
+      msg("✅ تم إنشاء الحساب");
+    }
+
+  }catch(e){
+    alert("خطأ: " + e.message);
   }
 }
 
-// ✅ تسجيل دخول
+// 🔓 دخول
 async function login(){
-  let email = document.getElementById("lemail").value.trim();
-  let pass = document.getElementById("lpass").value.trim();
+  alert("تم الضغط");
 
-  if(!email || !pass){
-    msg("❌ عبّي البيانات");
-    return;
-  }
+  try{
+    let email = document.getElementById("lemail").value;
+    let pass = document.getElementById("lpass").value;
 
-  let { data, error } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .eq("password", pass)
-    .single();
+    let {data,error} = await supabase
+      .from("users")
+      .select("*")
+      .eq("email",email)
+      .eq("password",pass)
+      .single();
 
-  if(error || !data){
-    console.log(error);
-    msg("❌ معلومات خاطئة");
-  }else{
-    localStorage.setItem("user", JSON.stringify(data));
-    msg("✅ تم تسجيل الدخول");
+    console.log(data,error);
 
-    setTimeout(()=>{
-      window.location.href = "dashboard.html";
-    }, 1000);
+    if(error || !data){
+      msg("❌ بيانات غلط");
+    }else{
+      localStorage.setItem("user", JSON.stringify(data));
+      msg("✅ تم الدخول");
+
+      setTimeout(()=>{
+        location="dashboard.html";
+      },1000);
+    }
+
+  }catch(e){
+    alert("خطأ: " + e.message);
   }
 }
+
 </script>
 
 </body>
