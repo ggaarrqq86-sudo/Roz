@@ -2,13 +2,12 @@
 <html lang="ar">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roz Tr</title>
+<title>Deposit</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
 body{text-align:center;font-family:Arial;}
-.card{background:white;margin:10px;padding:15px;border-radius:10px;}
-button{padding:10px;background:#666;color:white;border:none;border-radius:8px;}
+button{padding:10px;background:#666;color:white;border:none;margin:5px;}
 </style>
 </head>
 
@@ -16,23 +15,26 @@ button{padding:10px;background:#666;color:white;border:none;border-radius:8px;}
 
 <h2>💰 شحن</h2>
 
-<div class="card">
 <button onclick="send(200)">200</button>
 <button onclick="send(500)">500</button>
 <button onclick="send(1000)">1000</button>
-</div>
 
 <script>
-const supabase=window.supabase.createClient(
+const supabase = window.supabase.createClient(
 "https://ipslfmrolkquacrbvbxl.supabase.co",
-"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24يIiwiaWF0IjoxNzc0NDYxMDEzLCJleHAiOjIwOTAwMzcwMTN9.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
 );
 
-let user=JSON.parse(localStorage.getItem("user"));
+let user = JSON.parse(localStorage.getItem("user"));
+if (!user) location="index.html";
 
 async function send(a){
-await supabase.from("deposits").insert([{user_id:user.id,amount:a}]);
-alert("تم");
+  try{
+    await supabase.from("deposits").insert([{user_id:user.id,amount:a}]);
+    alert("⏳ تم الطلب");
+  }catch(e){
+    console.log(e);
+  }
 }
 </script>
 
