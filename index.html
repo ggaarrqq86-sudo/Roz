@@ -10,167 +10,138 @@
 <style>
 body {
   font-family: Arial;
-  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+  background: linear-gradient(to bottom,#ffffff,#e0e0e0);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  margin:0;
 }
 
-/* الكرت */
-.container {
-  background: white;
-  padding: 20px;
-  width: 90%;
-  max-width: 350px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px #ccc;
+.box {
+  background:white;
+  padding:20px;
+  width:90%;
+  max-width:350px;
+  border-radius:15px;
+  box-shadow:0 0 10px #ccc;
 }
 
-/* العنوان */
-.logo {
-  font-size: 26px;
-  font-weight: bold;
-  color: #555;
-  text-align: center;
+h2 {
+  text-align:center;
 }
 
-.subtitle {
-  text-align: center;
-  color: #888;
-  font-size: 13px;
-  margin-bottom: 15px;
-}
-
-/* الحقول */
 input {
-  width: 100%;
-  padding: 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  box-sizing: border-box;
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 
-/* الأزرار */
 button {
-  width: 100%;
-  padding: 12px;
-  background: linear-gradient(45deg, #aaa, #666);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  margin-top: 8px;
-  font-size: 16px;
-  cursor: pointer;
+  width:100%;
+  padding:10px;
+  background:#666;
+  color:white;
+  border:none;
+  border-radius:8px;
 }
 
-/* رسائل */
-.success { color: green; text-align:center; }
-.error { color: red; text-align:center; }
-
-/* خط فاصل */
-hr {
-  margin: 15px 0;
-}
-
-/* موبايل */
-@media (max-width: 400px) {
-  .container {
-    padding: 15px;
-  }
+#msg {
+  text-align:center;
+  margin-top:10px;
 }
 </style>
-
 </head>
 
 <body>
 
-<div class="container">
+<div class="box">
 
-  <div class="logo">Roz Tr</div>
-  <div class="subtitle">منصة المهام والربح</div>
+<h2>Roz Tr</h2>
 
-  <h3>🔐 إنشاء حساب</h3>
-  <input id="name" placeholder="الاسم">
-  <input id="email" placeholder="البريد الإلكتروني">
-  <input id="password" type="password" placeholder="كلمة المرور">
-  <button onclick="register()">إنشاء حساب</button>
+<h3>🔐 إنشاء حساب</h3>
+<input id="name" placeholder="الاسم">
+<input id="email" placeholder="البريد الإلكتروني">
+<input id="pass" type="password" placeholder="كلمة المرور">
+<button onclick="register()">إنشاء حساب</button>
 
-  <hr>
+<hr>
 
-  <h3>🔓 تسجيل دخول</h3>
-  <input id="loginEmail" placeholder="البريد الإلكتروني">
-  <input id="loginPassword" type="password" placeholder="كلمة المرور">
-  <button onclick="login()">دخول</button>
+<h3>🔓 تسجيل دخول</h3>
+<input id="lemail" placeholder="البريد الإلكتروني">
+<input id="lpass" type="password" placeholder="كلمة المرور">
+<button onclick="login()">دخول</button>
 
-  <p id="msg"></p>
+<p id="msg"></p>
 
 </div>
 
 <script>
 const supabase = window.supabase.createClient(
-  "https://ipslfmrolkquacrbvbxl.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+"https://ipslfmrolkquacrbvbxl.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
 );
 
-function generateAccountId() {
-  return "ACC-" + Math.floor(100000 + Math.random() * 900000);
+function msg(t){
+  document.getElementById("msg").innerText = t;
 }
 
-async function register() {
-  let name = document.getElementById("name").value;
-  let email = document.getElementById("email").value;
-  let password = document.getElementById("password").value;
+// ✅ إنشاء حساب
+async function register(){
+  let name = document.getElementById("name").value.trim();
+  let email = document.getElementById("email").value.trim();
+  let pass = document.getElementById("pass").value.trim();
 
-  if (!name || !email || !password) {
-    showMsg("❌ املأ كل الحقول", true);
+  if(!name || !email || !pass){
+    msg("❌ عبّي كل الحقول");
     return;
   }
 
-  let accountId = generateAccountId();
-
-  const { error } = await supabase.from("users").insert([{
-    name,
-    email,
-    password,
-    account_id: accountId
+  let { error } = await supabase.from("users").insert([{
+    name: name,
+    email: email,
+    password: pass,
+    points: 0
   }]);
 
-  if (error) {
-    showMsg("❌ " + error.message, true);
-  } else {
-    showMsg("✅ تم إنشاء الحساب");
+  if(error){
+    console.log(error);
+    msg("❌ " + error.message);
+  }else{
+    msg("✅ تم إنشاء الحساب");
   }
 }
 
-async function login() {
-  let email = document.getElementById("loginEmail").value;
-  let password = document.getElementById("loginPassword").value;
+// ✅ تسجيل دخول
+async function login(){
+  let email = document.getElementById("lemail").value.trim();
+  let pass = document.getElementById("lpass").value.trim();
 
-  const { data, error } = await supabase
+  if(!email || !pass){
+    msg("❌ عبّي البيانات");
+    return;
+  }
+
+  let { data, error } = await supabase
     .from("users")
     .select("*")
     .eq("email", email)
-    .eq("password", password)
+    .eq("password", pass)
     .single();
 
-  if (error || !data) {
-    showMsg("❌ بيانات خاطئة", true);
-  } else {
+  if(error || !data){
+    console.log(error);
+    msg("❌ معلومات خاطئة");
+  }else{
     localStorage.setItem("user", JSON.stringify(data));
-    showMsg("✅ مرحبًا " + data.name);
-    setTimeout(() => {
+    msg("✅ تم تسجيل الدخول");
+
+    setTimeout(()=>{
       window.location.href = "dashboard.html";
     }, 1000);
   }
-}
-
-function showMsg(msg, isError=false) {
-  let el = document.getElementById("msg");
-  el.innerText = msg;
-  el.className = isError ? "error" : "success";
 }
 </script>
 
