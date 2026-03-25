@@ -1,128 +1,38 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="UTF-8">
-<title>Roz Tr - شحن</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roz Tr</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
-body {
-  font-family: Arial;
-  background: linear-gradient(to bottom, #ffffff, #e5e5e5);
-  text-align: center;
-}
-
-.header {
-  padding: 15px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #555;
-}
-
-.card {
-  background: white;
-  margin: 15px;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 0 15px #ccc;
-}
-
-.package {
-  padding: 15px;
-  margin: 10px;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-.selected {
-  background: #ddd;
-}
-
-button {
-  padding: 12px;
-  background: #888;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  width: 90%;
-}
-
-button:hover {
-  background: #666;
-}
+body{text-align:center;font-family:Arial;}
+.card{background:white;margin:10px;padding:15px;border-radius:10px;}
+button{padding:10px;background:#666;color:white;border:none;border-radius:8px;}
 </style>
 </head>
 
 <body>
 
-<div class="header">💰 شحن الرصيد</div>
+<h2>💰 شحن</h2>
 
 <div class="card">
-
-  <h3>اختر الباقة</h3>
-
-  <div class="package" onclick="selectPackage(200)">200 نقطة</div>
-  <div class="package" onclick="selectPackage(500)">500 نقطة</div>
-  <div class="package" onclick="selectPackage(1000)">1000 نقطة</div>
-
-  <h3>💳 معلومات الدفع</h3>
-  <p>USDT (TRC20)</p>
-
-  <input id="wallet" value="PUT_YOUR_WALLET_HERE" readonly style="width:90%;padding:10px;">
-  <br><br>
-  <button onclick="copyWallet()">نسخ العنوان</button>
-
-  <br><br>
-
-  <button onclick="submitDeposit()">تم الدفع</button>
-
+<button onclick="send(200)">200</button>
+<button onclick="send(500)">500</button>
+<button onclick="send(1000)">1000</button>
 </div>
 
 <script>
-const supabase = window.supabase.createClient(
-  "https://ipslfmrolkquacrbvbxl.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlwc2xmbXJvbGtxdWFjcmJ2YnhsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjEwMTMsImV4cCI6MjA5MDAzNzAxM30.1I6jlttiXn_flKCbXbmXVyZrjnlLOoYqYqqX3rsM4wk"
+const supabase=window.supabase.createClient(
+"https://ipslfmrolkquacrbvbxl.supabase.co",
+"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 );
 
-let user = JSON.parse(localStorage.getItem("user"));
-let selectedAmount = 0;
+let user=JSON.parse(localStorage.getItem("user"));
 
-if (!user) {
-  window.location.href = "index.html";
-}
-
-function selectPackage(amount) {
-  selectedAmount = amount;
-
-  document.querySelectorAll(".package").forEach(el => {
-    el.classList.remove("selected");
-  });
-
-  event.target.classList.add("selected");
-}
-
-function copyWallet() {
-  let wallet = document.getElementById("wallet");
-  wallet.select();
-  document.execCommand("copy");
-  alert("📋 تم النسخ");
-}
-
-async function submitDeposit() {
-
-  if (selectedAmount < 200) {
-    alert("❌ الحد الأدنى 200");
-    return;
-  }
-
-  await supabase.from("deposits").insert([{
-    user_id: user.id,
-    amount: selectedAmount
-  }]);
-
-  alert("⏳ تم إرسال طلب الشحن");
+async function send(a){
+await supabase.from("deposits").insert([{user_id:user.id,amount:a}]);
+alert("تم");
 }
 </script>
 
